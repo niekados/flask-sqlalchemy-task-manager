@@ -313,3 +313,50 @@ psql -d taskmanager
 
 \dt
 ```
+
+## Template Inheritance
+
+When using a templating language such as Flask, any assets that we use such as images, CSS,
+and JavaScript, need to be stored in a directory called '`static`' and we'll also want to add the css/
+and js/ folders within this static directory.
+
+Now, in order to link to any static file that we have, it's important to note that we must use the correct syntax.
+`<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">`
+
+---
+**NOTE**
+
+Also, quite often when working with a templating language, if you make changes to your CSS
+or JavaScript files, and then reload the page, it might not show your changes.
+This is very likely an issue to do with caching, so here are three steps to always remember to check.
+- First, try a hard-reload, which is generally CTRL+SHIFT+R in most cases, but depending
+on your computer and which browser you use, it could be one of these combinations on screen.
+- Second, if that doesn't work, open a new Incognito window with your project URL, and if you do
+see the changes, it's certainly a caching issue, since Incognito doesn't store cache.
+- Finally, if neither of those options work, stop the application in your terminal from
+running, and just restart it.
+This may sound asinine, but quite often with Flask and Django, a fresh restart of the app
+is required to take effect of any new additions to your code.
+
+---
+
+### Materilize
+
+we need to initialise materialise sidenav.
+just get the snippet code from materialize website under the Initialization section and paste it in script.js
+```js
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, options);
+  });
+  ```
+  and we customize it like this for our project 
+  ```js
+  document.addEventListener('DOMContentLoaded', function() {
+    // sidenav initialization
+    let sidenav = document.querySelectorAll('.sidenav');
+    M.Sidenav.init(sidenav);
+  });
+  ```
+  
+
