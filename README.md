@@ -1,112 +1,126 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+## Installation
 
-Welcome USER_NAME,
+- `pip3 install 'Flask-SQLAlchemy<3' psycopg2 sqlalchemy==1.4.46`
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
+- Next, we will be storing some sensitive data, and we need to hide them using environment
+variables hidden within a new file called '`env.py`'.
+Make sure to have a `.gitignore` file that contains any files and folders which should be ignored by GitHub, such as an `env.py` file.
 
-You can safely delete this README.md file or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use. Some of this information has been updated since the video content was created. The last update to this file was: **April 26, 2024**
+```python
+# env.py
+import os
 
-## Gitpod Reminders
-
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
-
-`python3 -m http.server`
-
-A blue button should appear to click: _Make Public_,
-
-Another blue button should appear to click: _Open Browser_.
-
-To run a backend Python file, type `python3 app.py` if your Python file is named `app.py`, of course.
-
-A blue button should appear to click: _Make Public_,
-
-Another blue button should appear to click: _Open Browser_.
-
-By Default, Gitpod gives you superuser security privileges. Therefore, you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
-
-To log into the Heroku toolbelt CLI:
-
-1. Log in to your Heroku account and go to *Account Settings* in the menu under your avatar.
-2. Scroll down to the *API Key* and click *Reveal*
-3. Copy the key
-4. In Gitpod, from the terminal, run `heroku_config`
-5. Paste in your API key when asked
-
-You can now use the `heroku` CLI program - try running `heroku apps` to confirm it works. This API key is unique and private to you, so do not share it. If you accidentally make it public, you can create a new one with _Regenerate API Key_.
-
-------
-
-## Release History
-
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
-
-**April 26 2024:** Update node version to 16
-
-**September 20 2023:** Update Python version to 3.9.17.
-
-**September 1 2021:** Remove `PGHOSTADDR` environment variable.
-
-**July 19 2021:** Remove `font_fix` script now that the terminal font issue is fixed.
-
-**July 2 2021:** Remove extensions that are not available in Open VSX.
-
-**June 30 2021:** Combined the P4 and P5 templates into one file, added the uptime script. See the FAQ at the end of this file.
-
-**June 10 2021:** Added: `font_fix` script and alias to fix the Terminal font issue
-
-**May 10 2021:** Added `heroku_config` script to allow Heroku API key to be stored as an environment variable.
-
-**April 7 2021:** Upgraded the template for VS Code instead of Theia.
-
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
-
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
-
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
-
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
-
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
-
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
-
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
-
-------
-
-## FAQ about the uptime script
-
-**Why have you added this script?**
-
-It will help us to calculate how many running workspaces there are at any one time, which greatly helps us with cost and capacity planning. It will help us decide on the future direction of our cloud-based IDE strategy.
-
-**How will this affect me?**
-
-For everyday usage of Gitpod, it doesn’t have any effect at all. The script only captures the following data:
-
-- An ID that is randomly generated each time the workspace is started.
-- The current date and time
-- The workspace status of “started” or “running”, which is sent every 5 minutes.
-
-It is not possible for us or anyone else to trace the random ID back to an individual, and no personal data is being captured. It will not slow down the workspace or affect your work.
-
-**So….?**
-
-We want to tell you this so that we are being completely transparent about the data we collect and what we do with it.
-
-**Can I opt out?**
-
-Yes, you can. Since no personally identifiable information is being captured, we'd appreciate it if you let the script run; however if you are unhappy with the idea, simply run the following commands from the terminal window after creating the workspace, and this will remove the uptime script:
-
+os.environ.setdefault("IP", "0.0.0.0")
+os.environ.setdefault("PORT", "5000")
+os.environ.setdefault("SECRET_KEY", "any_secret_key")
+os.environ.setdefault("DEBUG", "True") # make sure to set it to False for final project
+os.environ.setdefault("DEVELOPMENT", "True")
+os.environ.setdefault("DB_URL", "postgresql:///taskmanager")
 ```
-pkill uptime.sh
-rm .vscode/uptime.sh
-```
+- Next, the entire application will need to be its own Python package, so to make this
+a package, we need a new folder which we will simply call `taskmanager/`.
+Inside of that, a new file called `__init__.py`
+This will make sure to initialize our taskmanager application as a package, allowing us to use
+our own imports, as well as any standard imports.
 
-**Anything more?**
+- We will start by importing the following:
+`import os from flask import Flask`
+`from flask_sqlalchemy import SQLAlchemy`
+In order to actually use any of our hidden environment variables, we need to import the '`env`' package.
+However, since we are not pushing the `env.py` file to GitHub, this file will not be visible
+once deployed to Heroku, and will throw an error.
+This is why we need to only import '`env`' if the OS can find an existing file path for the `env.py` file itself.
+Now we can create an instance of the imported `Flask()` class, and that will be stored in
+a variable called '`app`', which takes the default Flask `__name__` module.
+Then, we need to specify two app configuration variables, and these will both come from our environment variables.
+app.config SECRET_KEY and app.config SQLALCHEMY_DATABASE_URI, both wrapped in square brackets and quotes.
+Each of these will be set to get their respective environment variable, which is SECRET_KEY,
+and the short and sweet DB_URL for the database location which we'll set up later.
+Then, we need to create an instance of the imported SQLAlchemy() class, which will be
+assigned to a variable of 'db', and set to the instance of our Flask 'app'.
+Finally, from our taskmanager package, we will be importing a file called 'routes' which we'll create momentarily.
 
-Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` file so that you know what it's doing. As future software developers, it will be great practice to see how these shell scripts work.
+--- 
+**NOTE**
+
+Once you save the file, you'll notice we have a couple linting issues.
+First, it says that we've imported 'env', but it's unused.
+It's also complaining about our custom import not being added at the top of the file with the other imports.
+The reason this is being imported last, is because the 'routes' file, that we're about
+to create, will rely on using both the 'app' and 'db' variables defined above.
+If we try to import routes before 'app' and 'db' are defined, then we'll get circular-import
+errors, meaning those variables aren't yet available to use, as they're defined after the routes.
+These linting warnings are technically not accurate, so to stop the warnings, we can
+add a comment at the end of each line, # noqa for 'No Quality Assurance'.
 
 ---
 
-Happy coding!
+```python
+# taskmanager/__init__.py
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+if os.path.exists("env.py"):
+    import env # noqa
+
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.comfig["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URL")
+
+db = SQLAlchemy(app)
+
+from taskmanager import routes # noqa
+```
+
+- Now we can create the new '`routes.py`' file within our taskmanager package.
+We're going to start using some Flask functionality, so we can `import render_template from flask` to start with.
+Then, from our main taskmanager package, let's `import` both '`app`' and '`db`'.
+For simplicity to get the app running, we'll create a basic app route using the root-level directory of slash.
+This will be used to target a function called 'home', which will just return the rendered_template
+of "`base.html`" that we will create shortly.
+
+```python
+# taskmanager/routes.py
+from flask import render_template
+from taskmanager import app, db
+
+@app.route("/")
+def home():
+    return render_template("base.html")
+```
+
+- create the main Python file that will actually run the entire application.
+This will be at the root level of our workspace, not part of the taskmanager package itself.
+Since it will run the whole application, let's just call it `run.py` in that case.
+We need to import os once again, in order to utilize environment variables within this file.
+We also need to import the '`app`' variable that we've created within our taskmanager
+package, defined in the init file.
+The last step to run our application is to tell our app how and where to run the application.
+This is the same process we've seen before, checking that the 'name' class is equal to
+the default 'main' string, wrapped in double underscores.
+If it's a match, then we need to have our app running, which will take three arguments:
+'host', 'port', and 'debug'.
+Each of these, as you may recall, are stored in the environment variables, so we need to
+use os.environ.get().
+The host is the IP, the port is obviously PORT, but that needs to be converted into
+an integer, and then debug is of course DEBUG.
+
+```python
+# run.py
+import os
+from taskmanager import app
+
+
+if __name__ == "__main__":
+    app.run(
+        host=os.environ.get("IP"),
+        port=int(os.environ.get("PORT")),
+        debug=os.environ.get("DEBUG")
+    )
+```
+- Finally, we need to render some sort of front-end template to verify that the application is running successfully.
+Within our taskmanager package, let's create a new directory called '`templates`', which
+is where Flask looks for any HTML templates to be rendered.
+- Then, within this templates directory, we will create a new file called `base.html`, which
+is what will be rendered from our routes.py file.
