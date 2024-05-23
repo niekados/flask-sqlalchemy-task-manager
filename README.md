@@ -407,5 +407,87 @@ def add_category():
     return render_template("add_category.html")
 ```
 
+## Extracting data from db
 
+Now, it's time to start building the code that will extract the data from within our
+database, so let's head over to the `routes.py` file.
+In the previous video, we added a temporary placeholder route, which allows us to pull
+up the categories template itself.
+All we need to do here now, is add some code to query the database so we can use that within our template.
+First, let's define a new variable within the categories function, which will also be
+called categories to keep things consistent.
+We just need to query the 'Category' model that is imported at the top of the file from
+our models.py file, and we can do that by simply typing:
+Category.query.all()
+Sometimes though, categories might be added at different times, so this would have the
+default method of sorting by the primary key when things get added.
+Let's go ahead and use the .order_by() method, and have it sort by the key of 'category_name'.
+We also need to make sure that we tell it the specific model as well, even though it
+might seem redundant, it's possible to use other sorting methods.
+You need to make sure the quantifier, which is .all() in this case, is at the end of the
+query, after the .order_by() method.
+Whenever we call this function by clicking the navbar link for Categories, it will query
+the database and retrieve all records from this table, then sort them by the category name.
+Now, all that's left to do here is to pass this variable into our rendered template,
+so that we can use this data to display everything to our users.
+By using the .all() method, this is actually what's known as a Cursor Object, which is
+quite similar to an array or list of records.
+Even if the result comes back with a single record, it's still considered a Cursor Object,
+and sometimes Cursor Objects can be confusing when using them on front-end templates.
+Thankfully, there's a simple Python method that can easily convert this Cursor Object
+into a standard Python list, by wrapping the variable inside of 'list()'.
+You might be slightly confused as to what 'categories=categories' represents, so let's quickly explain this part.
+The first declaration of 'categories' is the variable name that we can now use within the HTML template.
+The second 'categories', which is now a list(), is the variable defined within our function
+above, which is why, once again, it's important to keep your naming convention quite similar.
 
+```python
+# routes.py
+@app.route("/categories")
+def categories():
+    categories = list(Category.query.order_by(Category.category_name).all())
+    return render_template("categories.html", categories=categories) # categories=categories explained:
+# The first declaration of 'categories' is the variable name that we can now use within the HTML template.
+# The second 'categories', which is now a list(), is the variable defined within our function
+```
+
+Perfect, now that we have this template variable available to us, let's go back to our categories.html
+template, and start incorporating it into our cards.
+Eventually, we are going to have more than one category listed here, but so far we've
+only added the single category of 'Travel'.
+However, let's prepare the code to recognize multiple cards, by using the Jinja syntax of a for-loop.
+We don't want each card to stack on top of each other, but instead, to flow within the
+same row, each having their own column.
+Make sure to add the for-loop just inside of the row, so everything within the row is repeated and looped.
+The closing {% endfor %} should be just after the div for this column, so follow that down,
+and add the closing element there.
+Similar to JavaScript, we need to define a new index for each iteration of this loop,
+so to keep things consistent, we will call ours 'category'.
+This means that for each 'category' in the ‘list of categories' being passed over from
+our Python function, it will generate a new column and card.
+Finally, we need to display the actual category name that's stored within our database, so
+we can update the card-title.
+Since we are within a for-loop, we need to use the newly defined index variable of 'category'.
+We also need to use dot-notation and tell it which key should be printed here, so in
+this case, it should be 'category.category_name', which means, “this category’s key of category_name”.
+If you wanted to show the primary key instead, that's stored within our database as 'id',
+so it would be 'category.id' for example.
+```html
+<!-- categories.html -->
+<div class="row">
+    {% for category in categories %}
+    <div class="col s12 m6 l3">
+      <div class="card light-blue darken-4 center-align">
+        <div class="card-content white-text">
+          <span class="card-title">{{ category.category_name }}</span>
+
+        </div>
+        <div class="card-action">
+          <a href="#" class="btn green accent-4">Edit</a>
+          <a href="#" class="btn red ">Delete</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+```
