@@ -359,4 +359,53 @@ just get the snippet code from materialize website under the Initialization sect
   });
   ```
   
+  ## Adding Categories
+
+  ### routes.py
+
+  Let's return to the `route.py` file, and now we can add the `POST` method functionality for
+users to add a new category to the database.
+If the requested method is equal to POST, then we will create a new variable called
+'`category`', which will be set to a new instance of the `Category()` model imported at the top of the file.
+By using the '`request`' method, we need to also import that from Flask at the top here.
+We need to make sure that this Category model uses the same exact keys that the model is
+expecting, so when in doubt, copy from the model directly.
+For this category_name field, we can then use the `request` form being posted to retrieve the name-attribute.
+This is why it's important to keep the naming convention consistent, which means our name-attribute
+matches that of our database model.
+Once we've grabbed the form data, we can then '`add`' and '`commit`' this information to the
+SQLAlchemy database variable of '`db`' imported at the top of the file.
+This will use the database `sessionmaker` instance that we learned about in some of the previous videos.
+After the form gets submitted, and we're adding and committing the new data to our database,
+we could redirect the user back to the '`categories`' page.
+We'll need to import the '`redirect`' and '`url_for`' classes at the top of the file from our flask import.
+That completes our function, so let's quickly recap what's happening here.
+When a user clicks the "Add Category" button, this will use the "GET" method and render the 'add_category' template.
+Once they submit the form, this will call the same function, but will check if the request
+being made is a “POST“ method, which posts data somewhere, such as a database.
+Anything that needs to be handled by the POST method, should be indented properly within this condition.
+By default, the normal method is GET, so it will behave as the 'else' condition since
+it's not part of the indented POST block.
+If you wanted to, technically you could separate this into two separate functions, which would
+handle the GET and POST methods completely apart.
+Also, in a real-world scenario in a production environment, you'd probably want to consider
+adding defensive programming to handle brute-force attacks, along with some error handling.
+
+```python
+# routes.py
+from flask import render_template, request, redirect, url_for
+
+
+# we used GET and POST methods, as we will be submitting form to database
+@app.route("/add_category", methods=["GET", "POST"])
+def add_category():
+    if request.method == "POST":
+        category = Category(category_name=request.form.get("category_name"))
+        db.session.add(category)
+        db.session.commit()
+        return redirect(url_for("categories"))
+    return render_template("add_category.html")
+```
+
+
 
