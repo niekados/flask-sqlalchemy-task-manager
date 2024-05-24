@@ -739,3 +739,182 @@ to go ahead and delete one of these categories.
 For this demonstration, I'm going to delete the category that we updated in the last video.
 
 ---
+
+## Add Task
+
+Go ahead and update the text to be "Add Task", and then update the function to match, "add_task".
+This will also be the same URL that we apply to the navbar link, so open the base.html template.
+Copy any of the existing url_for() methods from an existing href, and paste it into the link for 'New Task'.
+Let's update that function to match the other file, which was "add_task", making sure to
+also copy and paste that below into the sidenav as well.
+Now, let's open up the routes.py file, and create this function that will render a new
+template for users to add a new Task.
+It's actually quite similar to the 'add_category' function, so let's just copy the entire function,
+and paste it as a brand new one at the bottom of the file.
+Then, we can start updating the app route and function name to "add_task" instead of category.
+If you recall from the video where we designed our database schema, each task actually requires
+the user to select a category for that task.
+In order to do that, we first need to extract a list of all of the categories available from the database.
+We've previously done this on the 'categories' function, so go ahead and copy that line above,
+and paste it before the POST method.
+This time, however, we aren't going to be inserting a new category into the database, but rather a new task.
+From our models.py file, each task must have a few different elements, including a task
+name, description, due date, category, and whether or not it's urgent.
+That means we need to update the POST method to reflect each of the fields that will be
+added from the form that we will create shortly.
+Make sure to separate each field with a comma at the end of the line, to signify the end of that particular field.
+Task name will be set to the form's name attribute of 'task_name'.
+Task description will use the form's 'task_description' field
+The 'is_urgent' field will be a Boolean, either true or false, so we'll make it True if the
+form data is toggled on, otherwise it will be set to False by default.
+Due date will of course be the form's 'due_date' input box.
+Then finally, the last column for each Task will be the selected Category ID, which will
+be generated as a dropdown list to choose from, using the 'categories' list above.
+Once the form is submitted, we can add that new 'task' variable to the database session,
+and then immediately commit those changes to the database.
+If successful, then we can redirect the user back to the 'home' page where each task will eventually be displayed.
+That concludes the POST functionality when users add a new Task to the database.
+If, however, the method isn't POST, and a user is trying to add a new task, they need
+to be displayed with the page that contains the form.
+This should render the template for "add_task.html", and in order for the dropdown list to display
+each available category, we need to pass that variable into the template.
+As a reminder, the first 'categories' listed is the variable name that we will be able
+to use on the template itself.
+The second 'categories' is simply the list of categories retrieved from the database defined above.
+That's all we need for the 'add_task' function, which will render the template for new tasks,
+and then commit those new tasks to the database if the form is submitted.
+
+```python
+# routes.py
+@app.route("/add_task", methods=["GET", "POST"])
+def add_task():
+    categories = list(Category.query.order_by(Category.category_name).all())
+    if request.method == "POST":
+        task = Task(
+            task_name=request.form.get("task_name"),
+            task_description=request.form.get("task_description"),
+            is_urgent=bool(True if request.form.get("is_urgent") else False),
+            due_date=request.form.get("due_date"),
+            category_id=request.form.get("category_id")
+        )
+        db.session.add(task)
+        db.session.commit()
+        return redirect(url_for("home"))
+    return render_template("add_task.html", categories=categories)
+```
+
+
+
+The next field will be the 'due_date' of the task, so let's copy the entire row once again for the task name.
+This time, however, instead of having users put a minimum or maximum value, we are going
+to use another one of the Materialize helper classes called 'datepicker'.
+Even though this is a standard input field, by using the 'datepicker' helper class, we
+need to also initialize the datepicker using JavaScript.
+From the Materialize documentation, let's copy the code snippet for the datepicker and
+paste it into our custom JavaScript file.
+I'm going to call this variable 'datepickers', and we can initialize that variable with some additional options.
+Back on the Materialize site, you can see that they've got several options to include on the datepicker.
+Let's keep this simple, so we are only going to include a few custom options.
+First, we need to make sure that all tasks have a consistent date format, which uses the 'format' key.
+For this project, I'm going to specify the date format of "dd mmmm, yyyy", which would
+be for example, "01 February, 2024".
+If you wanted, you could also include other options, such as the 'yearRange' to only show
+3 years at a time, or the 'showClearBtn' as 'true'.
+For demonstration purposes, I will also include the 'i18n' option, which itself will contain
+a dictionary of elements.
+The 'i18n' is the nickname given for 'internationalization' since there are 18 letters in the middle of
+that word, starting with I and ending with N.
+It allows programmers to customize text when dealing with foreign languages, if you want
+the datepicker element to be translated into Gaelic or Klingon for example.
+In this case, I'd like to change the text on the 'Done' button, instead of showing 'OK',
+I want it to show 'Select'.
+Using the list provided, you can change any of these, such as the months, dates, days of the week, etc.
+
+```html
+<!-- add_task.html -->
+<!-- due_date -->
+<div class="row">
+    <div class="input-field col s12">
+        <i class="fas fa-calendar-alt prefix light-blue-text text-darken-4"></i>
+        <input id="due_date" name="due_date" type="text" class="datepicker validate" 
+            required>
+        <label for="due_date">Due Date</label>
+    </div>
+</div>
+```
+
+```js
+// script.js
+document.addEventListener('DOMContentLoaded', function() {
+    // // sidenav initialization
+    // let sidenav = document.querySelectorAll('.sidenav');
+    // M.Sidenav.init(sidenav);
+
+    // datepicker initialization
+    let datepicker = document.querySelectorAll('.datepicker');
+    M.Datepicker.init(datepicker, {
+      format: "dd mmmm, yyyy",
+      i18n: {done: "Select"}
+    });
+  });
+```
+
+The final field will be for our dropdown list to select the category applicable to this task.
+Back within the Materialize docs, navigate to the 'Select' page for forms, and we're
+only going to focus on the basic dropdown element at the top.
+You'll notice that it's similar to a standard select element, nothing too fancy here, so
+I'm going to copy the task_name one more time, and adjust the required elements.
+This will be for 'category_id', so we can adjust that throughout this row, and update the icon if desired.
+Since this will be a select element, I'll update that to be select, making sure to include
+the closing /select tag as well, and removing the min, max, and type attributes.
+For the category options, we'll start with a basic option that is disabled and selected
+by default, which reads 'Choose Category' displayed to the users.
+Then, we need to create a Jinja for-loop over the list of all categories that are being
+retrieved from the database.
+{% for category in categories %} making sure to also include the {% endfor %} block.
+For each category in this loop, we need to create a new 'option' in the dropdown.
+The value for each option will be the category's unique ID, but obviously the ID won't make
+much sense to our users, so we'll use the 'category.category_name' for display purposes.
+If you recall, whenever submitting a form to the back-end, Python uses the name="" attribute
+to grab the data being stored within the database.
+For select elements, the actual data being stored is the value of the selected option,
+which will be the category ID, whether it's 1, 2, 3, 4, and so on.
+```html
+        <!-- category_id -->
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="fas fa-folder-open prefix light-blue-text text-darken-4"></i>
+                <select name="category_id" id="category_id" class="validate" required>
+                    <option value="" disabled selected>Choose Category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.category_name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="category_id">Task Name</label>
+            </div>
+        </div>
+```
+The final step we need to do for the dropdown to work, is to initialize it via JavaScript,
+and that's because Materialize has a custom design for the select elements.
+Copy the initialization code from their documentation, and paste it within your JavaScript file.
+I'm going to call this variable 'selects' for any select element found, and then initialize those below.
+```js
+// script.js
+document.addEventListener('DOMContentLoaded', function() {
+//     // sidenav initialization
+//     let sidenav = document.querySelectorAll('.sidenav');
+//     M.Sidenav.init(sidenav);
+
+//     // datepicker initialization
+//     let datepicker = document.querySelectorAll('.datepicker');
+//     M.Datepicker.init(datepicker, {
+//       format: "dd mmmm, yyyy",
+//       i18n: {done: "Select"}
+//     });
+
+    // select initialization
+    let selects = document.querySelectorAll('select');
+    M.FormSelect.init(selects);
+  });
+```
+
