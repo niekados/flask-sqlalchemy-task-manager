@@ -918,3 +918,71 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 ```
 
+## Viewing Tasks
+
+If you recall, we opted for a specific date format when selecting a date from the datepicker,
+but you may have noticed that it's not displaying properly on our list.
+The templating engine we're using called Jinja actually comes with a helpful method of '.strftime()'
+which stands for "string from time".
+This is a Python directive that you can use within your Python files as well, and allows
+you to format dates and times to your preference.
+To see a full list of format options, visit strftime.org, which can be found in the link below this video.
+In our case, the format we opted for was Date Month, comma, Year, so that would be the format
+of "%d %B, %Y", making sure to be careful with case-sensitivity.
+Another thing we could add, is the Jinja filter of "|sort()" which will allow us to sort our tasks.
+You can find a link below this video for a list of the built-in Jinja filters.
+Clicking on "sort", you can see a few ways to use this, including the parameter of "attribute"
+using dot-notation from our database.
+Let's go ahead and use the sort filter on our for-loop, and for the attribute, we'll
+have it sort by the "due_date" column.
+
+(Built In Jinja Filters)[https://jinja.palletsprojects.com/en/3.0.x/templates/#builtin-filters]
+(strftime.org)[https://strftime.org/]
+
+Another thing we could add, is the Jinja filter of "|sort()" which will allow us to sort our tasks.
+You can find a link below this video for a list of the built-in Jinja filters.
+Clicking on "sort", you can see a few ways to use this, including the parameter of "attribute"
+using dot-notation from our database.
+Let's go ahead and use the sort filter on our for-loop, and for the attribute, we'll
+have it sort by the "due_date" column.
+
+
+```html
+<!-- tasks.html -->
+<ul class="collapsible">
+    <!-- THIS ONE -->
+    {% for task in tasks|sort(attribute="due_date") %}
+    <li>
+      <div class="collapsible-header white-text light-blue darken-4">
+        <i class="fas fa-caret-down"></i>
+        <!-- THIS ONE BELLOW TOO-->
+        <strong>{{ task.task_name }}</strong> : {{ task.due_date.strftime("%d %B, %Y") }} 
+        {% if task.is_urgent == True %}
+        <i class="fas fa-exclamation-circle light-blue-text text-lighten-2"></i>
+        {% endif %}
+    </div>
+      <div class="collapsible-body">
+        <strong>{{ task.category }}</strong>
+        <p>{{ task.task_description }}</p>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  ```
+
+The final thing to mention on this video, is converting your database queries into actual Python lists.
+Whenever you query the database, you actually get something returned called a Cursor Object,
+sometimes called a QuerySet.
+In some cases, you can't use a Cursor Object on the front-end, or with some of the Jinja template filters.
+Oftentimes, it's actually better to convert your queries into Python lists.
+Let's navigate to our routes.py file, and since we want this to occur only for queries
+that have more than one result, let's find any that end with '.all()'.
+As you can see, we've been doing this already, which is considered best practice, wrapping any query in a Python list().
+
+```python
+# Example
+@app.route("/")
+def home():
+    tasks = list(Task.query.order_by(Task.id).all())
+    return render_template("tasks.html", tasks=tasks)
+```

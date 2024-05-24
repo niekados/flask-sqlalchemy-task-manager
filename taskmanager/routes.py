@@ -4,7 +4,8 @@ from taskmanager.models import Category, Task
 
 @app.route("/")
 def home():
-    return render_template("tasks.html")
+    tasks = list(Task.query.order_by(Task.id).all())
+    return render_template("tasks.html", tasks=tasks)
 
 # Whenever you use the url_for() method on your links, it's important to note that these are
 # calling the actual Python functions ( def categories(): ), not the app.route ( @app.route("/categories") ), 
