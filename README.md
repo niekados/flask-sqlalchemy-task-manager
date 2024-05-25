@@ -986,3 +986,102 @@ def home():
     tasks = list(Task.query.order_by(Task.id).all())
     return render_template("tasks.html", tasks=tasks)
 ```
+
+## Edit Task
+
+The easiest way to generate a form that allows users to update data, is to make a copy of
+the original form which creates a new task.
+Right-click the add_task.html file, click on 'Copy', then right-click on the 'templates'
+directory, and finally, select 'Paste' to make a duplicate copy.
+Rename the file to edit_task.html, and now we can start updating the text to read 'Edit Task' within the file itself.
+In order to render the template, we need to create a new function inside of the routes.py file.
+Let's copy the entire function for adding a new task, and paste it below, giving it a unique name of 'edit_task'.
+The function needs to know which particular task we would like to edit, so we should include
+the task's ID in the app root URL, which is cast as an integer.
+Don't forget, we also need to pass that into the function itself as 'task_id'.
+If you recall from when we created the edit_category function, we used the 'get_or_404()' method,
+which queries the database using that task ID.
+Now, instead of using the Task model, we can simply update each column-header using dot-notation.
+We already have each field here, so we just need to adjust the formatting for Python to
+remove the original Task() model, and give it proper indentation.
+Do this for each field, adding 'task dot' in front of each column-header, such as 'task.task_name', or 'task.due_date'.
+It's important to do this for all fields, even if the user would only like to update one of them.
+If we don't include all fields, and the user only updates the task_name for example, then
+the other fields risk being deleted entirely.
+Since we are modifying the specific task here, we don't need to use session.add(), and only
+session.commit() is required for saving these changes.
+Finally, we just need to render our new template of 'edit_task.html', and along with the normal
+'categories' selection, we need to pass through the task itself.
+
+```python
+# routes.py
+@app.route("/edit_task/<int:task_id>", methods=["GET", "POST"])
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    categories = list(Category.query.order_by(Category.category_name).all())
+    if request.method == "POST":
+        task.task_name = request.form.get("task_name")
+        task.task_description = request.form.get("task_description")
+        task.is_urgent = bool(True if request.form.get("is_urgent") else False)
+        task.due_date = request.form.get("due_date")
+        task.category_id = request.form.get("category_id")
+        db.session.commit()
+    return render_template("edit_task.html", task=task, categories=categories)
+```
+
+Next, open up the tasks.html template, because we need a method for users to click a button
+that opens up this template for editing.
+Within the 'collapsible-body' element, just underneath the task-description paragraph,
+let's add another paragraph tag.
+This one will contain a link, styled like a button, in exactly the same way we created the Edit button for each category.
+I'm going to copy that one from the categories.html template, and paste it within the paragraph tag here.
+Make sure to update any reference to 'category', so that it calls the appropriate function for editing our task instead.
+Copy the entire href, and then go back to the new 'edit_task' template, where we can
+then paste that into the form's action attribute.
+That way, once we've updated any field on the task, it will know which specific task
+to update within our database.
+
+If you notice, the URL here is pointing to the new function of 'edit_task', and it's
+recognizing the primary key of 'task.id' which will be updated on the database.
+However, it's not very intuitive right now, because all of the fields are blank, instead
+of showing us the existing values stored for this task.
+Let's go back to the 'edit_task' template, and start adding the existing values into their respective fields.
+For the task name, the value-attribute will simply point to the current 'task.task_name'.
+For the task description, since this is a 
+, we need to add the existing value
+between the opening and closing textarea tags.
+The due date is another input field, so we can use the value-attribute of 'task.due_date',
+however, we need to convert the date into a string to match our date format.
+To keep things consistent, just copy the date string from the tasks.html template, and paste
+it within the value, making sure to fix any single or double quotes as needed.
+Unfortunately, the final two fields aren't as simple as adding the value-attribute.
+For the 'is_urgent' toggle, we need to conditionally check to see if it's set to True, and if so, add the 'checked' attribute.
+Duplicate the input line by pressing "Shift + Alt + Down" on Windows, or "Shift + Option + Down" on Mac.
+One should be checked if it's True, so let's add some Jinja logic here.
+If task.is_urgent is True, then add this checked input field, otherwise, within the 'else' block, show the normal input field.
+Remember to close the {% endif %} block.
+For the 'category' selection, our current for-loop is building anfor each category in our database.
+Similar to the 'is_urgent' toggle, we need to conditionally check to see if the current
+iteration of categories matches the actual task category that we are updating.
+Again, duplicate this line, and if there is a match, then it should be the one with the 'selected' attribute.
+If the current category is equal to the actual task.category, we will have that be 'selected'.
+Otherwise, display the normalfield within the {% else %} block, making sure to close the {% endif %} block.
+That should be everything now sorted, so let's save the changes, and reload the live preview page.
+Select any of your tasks by clicking on the Edit button, and as you can see, all of the
+existing details about this task are now pre-populated into our form.
+
+`check taks.html for the code itself`
+
+---
+**NOTE**
+
+The only issue we have now, is that the textarea for our task-description has a lot of whitespace
+before and after the actual content.
+Let's quickly go back to the file, and find the textarea.
+**Jinja has several helper elements, and one of them is specifically designed for whitespace control.
+If we include a minus-symbol at the beginning and end of this variable, it will remove any whitespace.
+Alternatively, if you wanted to add whitespace, you would apply a plus-symbol only at the
+beginning of the variable, not the end.**
+
+---
+
