@@ -1085,3 +1085,49 @@ beginning of the variable, not the end.**
 
 ---
 
+## Delte Task
+
+Let's jump right in and build the functionality for deleting tasks.
+First, we need a button that users can click in order to delete a task.
+I'll simply copy the Delete button from our categories template, and then paste it beneath
+the Edit button within our tasks.html template.
+Obviously we want to delete a task, so we need to alter the text from 'category' to 'task'.
+Save that file, and let's open the routes.py file in order to build that new function called 'delete_task'.
+Like I said, the delete functionality is quite similar to deleting a category, so let's copy that entire function above.
+Update every instance of 'category' to reflect 'task', which should be a total of 8 instances.
+When this function is called, it takes the 'task_id' variable, and tries to query the database to find that particular task.
+It will then remove the task using the .delete() method, and then commit those changes to our database.
+Finally, once the task is deleted, we can simply redirect the user back to the home page where our tasks are displayed.
+That's it, I told you it was much easier to accomplish, and I hope you managed to build this functionality yourself!
+Let's save everything, and run the app in the Terminal to test that it works perfectly.
+For demonstration purposes, I'm going to create a new fake task that we can delete.
+As you can see, after clicking the new task, the red delete button is visible.
+Now, the moment of truth, what happens when I click the Delete button?
+Wonderful, that's no longer displaying in our list of tasks, and we didn't get any error messages, so it's deleted successfully!
+In a real world scenario, you should ideally add some defensive programming, so that a
+user must first confirm whether or not they want to delete the task.
+Also, having user authentication is quite important, so that way only the user who created
+that task, should be able to delete that task.
+You will want your database protected, so that a user can't simply brute-force their way around your application.
+Currently, these app routes aren't protected, so any visitor to the site can add, edit,
+or delete any task or category, which is not secure.
+Let's step back a bit and have another look at our models.py file.
+If you recall, we created a relationship between our Category and Task models, using a 'backref' and the 'ondelete' cascade.
+Now that we have full CRUD functionality for both of these tables, let's see how that works together.
+Once again for demonstration purposes, I'm going to create a new Category called "Test",
+and two new tasks that use this new category.
+
+---
+**NOTE**
+
+As you can see, for the category, they both use the new "Test" category.
+The reason we add the backref and delete cascade, has to do with the fact that if the "Test"
+category gets deleted, then we will show an error on these two Tasks for having invalid categories.
+However, once the backref and delete cascade are added, if we decide to delete the "Test"
+category, then it will perform a cascade effect and delete any task utilizing this category.
+I'll go ahead and click "Delete" on the "Test" category, and then navigate back to the Home page.
+Sure enough, both of our fake tasks have been deleted as well, due to the cascade effect.
+Perhaps something to consider when designing your defensive programming, is to advise users
+that all related tasks will also be deleted simultaneously.
+
+--- 
