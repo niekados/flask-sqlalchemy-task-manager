@@ -1228,3 +1228,46 @@ Now that you have your database and code in your IDE configured, we will add it 
 Don't wrap strings in quotes when adding them as values to Heroku Config Vars.
 
 ---
+
+## Deploying the app
+
+
+That’s all the setting up done, so without further delay - let’s deploy!
+
+### Process
+
+1. Navigate to the “Deploy” tab of your app
+
+2. In the Deployment method section, select “Connect to GitHub”
+
+3. Search for your repo and click Connect
+
+4. Optional: You can click Enable Automatic Deploys in case you make any further changes to the project. This will trigger any time code is pushed to your GitHub repository
+
+5. As we already have all our changes pushed to GitHub, we will use the Manual deploy section and click Deploy Branch. This will start the build process. When finished, it should look something like this
+
+6. Now, we have our project in place, and we have an empty database ready for use. As you may remember from our local development, we still need to add our tables to our database. To do this, we can click the “More” button and select “Run console”
+
+7. Type `python3` into the console and click Run
+
+This opens the Python terminal, in the same way as it would if we typed python3 into the terminal within our IDE. Let’s now create the tables with the commands we used before
+
+```terminal
+from taskmanager import db
+db.create_all()
+```
+
+8. Exit the Python terminal, by typing `exit()` and hitting enter, and close the console. Our Heroku database should now have the tables and columns created from our models.py file.
+
+---
+**NOTE**
+
+Remember, if you make changes to your models anytime during development once deployed to Heroku, you will need to make these migrations once again in this Heroku console.
+
+---
+
+9. The app should be up and running now, so click the “Open app” button
+    - Your deployed app will load, but as your new database is empty there won’t be any categories or tasks displayed yet.
+    - Test that you can Create, Read, Update and Delete both the Categories and Tasks for this application.
+
+10. *Congratulations! You have successfully deployed your app to Heroku!*
