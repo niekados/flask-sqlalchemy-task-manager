@@ -1191,3 +1191,40 @@ Ensure you do not add a blank line to the end of the file as this can cause prob
 
 7. Save all your files and then add, commit and push your changes to GitHub
 
+## Connecting the database to the hosting platform
+
+Configuring a new app.
+
+Now that you have your database and code in your IDE configured, we will add it to a Heroku app using a new environment variable (Config Var) called DATABASE_URL. Then our Heroku app will be able to connect to the external database.
+
+### Process
+
+1. Log into Heroku.com and click “New” and then “Create a new app”
+
+2. Choose a unique name for your app, select the region closest to you and click “Create app”
+
+3. Go to the Settings tab of your new app
+
+4. Click Reveal Config Vars
+
+5. Return to your ElephantSQL tab and copy your database URL
+
+6. Back on Heroku, add a Config Var called DATABASE_URL and paste your ElephantSQL database URL in as the value. Make sure you click “Add”
+
+7. Add each of your other environment variables except **DEVELOPMENT** and **DB_URL** from the env.py file as a Config Var. The result should look something like this:
+
+---
+**NOTE**
+
+
+**DEBUG** is only set temporarily in case we have any errors during deployment. This must be removed before submitting any projects!
+
+---
+
+---
+**NOTE**
+
+
+Don't wrap strings in quotes when adding them as values to Heroku Config Vars.
+
+---
